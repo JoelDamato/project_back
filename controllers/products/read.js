@@ -9,27 +9,24 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
-const createUser = (req, res) => {
-  const { name, password, mail, photo } = req.body;
-  let role = 1;
 
+// Función para obtener todos los productos de la base de datos
+const getProducts = (req, res) => {
   // Conectar a la base de datos MySQL
   connection.connect((err) => {
     if (err) {
       console.error('Error al conectar a la base de datos:', err.message);
       res.status(500).json({ error: 'Error al conectar a la base de datos' });
     } else {
-      const sql = 'INSERT INTO users (name, password, mail, photo, role) VALUES (?, ?, ?, ?, ?)';
-      const values = [name, password, mail, photo, role];
+      const sql = 'SELECT * FROM products';
 
-      // Realizar la inserción en la base de datos MySQL
-      connection.query(sql, values, (err, result) => {
+      // Realizar la consulta a la base de datos MySQL
+      connection.query(sql, (err, rows) => {
         if (err) {
-          console.error('Error al crear el usuario:', err.message);
-          res.status(500).json({ error: 'Error al crear el usuario' });
+          console.error('Error al obtener los productos:', err.message);
+          res.status(500).json({ error: 'Error al obtener los productos' });
         } else {
-          const userId = result.insertId;
-          res.json({ id: userId, name, password, mail });
+          res.json(rows);
         }
 
         // Cerrar la conexión con la base de datos MySQL
@@ -40,5 +37,5 @@ const createUser = (req, res) => {
 };
 
 module.exports = {
-  createUser,
+  getProducts,
 };

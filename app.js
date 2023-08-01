@@ -4,10 +4,11 @@ const PORT = 8000;
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const DB_PATH = 'C:/Users/JB/OneDrive/Escritorio/projectoj.db';
-
+const cors = require('cors');
 
 const routes = require('./routes/index.js');
 
+app.use(cors());
 app.use(express.json());
 app.get('/api', (req, res) => {
     res.send('¡Bienvenido a la API de J!');

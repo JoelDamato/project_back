@@ -1,12 +1,20 @@
-const sqlite3 = require('sqlite3').verbose();
+const mysql = require('mysql');
+require('dotenv').config();
 
-// Ruta al archivo de la base de datos SQLite
-const DB_PATH = 'C:/Users/JB/OneDrive/Escritorio/projectoj.db';
+// Configuración de la conexión a la base de datos MySQL
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 
 // Función para modificar los datos de un usuario en la base de datos
 const updateUser = (req, res) => {
   const userId = req.params.id;
   const { name, password, mail, photo } = req.body;
+
+
 
   // Crear una nueva instancia de la base de datos SQLite
   const db = new sqlite3.Database(DB_PATH, (err) => {

@@ -9,27 +9,26 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
-const createUser = (req, res) => {
-  const { name, password, mail, photo } = req.body;
-  let role = 1;
+// Función para crear un producto en la base de datos
+const createProducts = (req, res) => {
+  const { name, description, category, image } = req.body;
 
-  // Conectar a la base de datos MySQL
+  // Establecer la conexión a la base de datos MySQL
   connection.connect((err) => {
     if (err) {
       console.error('Error al conectar a la base de datos:', err.message);
       res.status(500).json({ error: 'Error al conectar a la base de datos' });
     } else {
-      const sql = 'INSERT INTO users (name, password, mail, photo, role) VALUES (?, ?, ?, ?, ?)';
-      const values = [name, password, mail, photo, role];
+      const sql = 'INSERT INTO products (name, description, category, image) VALUES (?, ?, ?, ?)';
+      const values = [name, description, category, image];
 
-      // Realizar la inserción en la base de datos MySQL
       connection.query(sql, values, (err, result) => {
         if (err) {
-          console.error('Error al crear el usuario:', err.message);
-          res.status(500).json({ error: 'Error al crear el usuario' });
+          console.error('Error al crear el producto:', err.message);
+          res.status(500).json({ error: 'Error al crear el producto' });
         } else {
-          const userId = result.insertId;
-          res.json({ id: userId, name, password, mail });
+          const productId = result.insertId;
+          res.json({ id: productId, name, description, category, image });
         }
 
         // Cerrar la conexión con la base de datos MySQL
@@ -40,5 +39,5 @@ const createUser = (req, res) => {
 };
 
 module.exports = {
-  createUser,
+  createProducts,
 };
