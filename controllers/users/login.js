@@ -1,9 +1,10 @@
-const jwt = require("jsonwebtoken");
 const mysql = require('mysql');
+const jwt = require("jsonwebtoken");
+
 require('dotenv').config();
 
-// Configuración de la conexión a la base de datos MySQL
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
+  connectionLimit: 10, // Número máximo de conexiones en el pool
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -13,16 +14,17 @@ const connection = mysql.createConnection({
 const loginUser = (req, res) => {
   const { email, password } = req.body;
 
-  connection.connect((err) => {
+  pool.getConnection((err, connection) => {
     if (err) {
-      console.error("Error al conectar a la base de datos:", err.message);
+      console.error("Error al obtener conexión del pool:", err.message);
       return res.status(500).json({ error: "Error de servidor" });
     }
-    console.log("Conexión exitosa a la base de datos MySQL");
 
-    // Buscar el usuario en la base de datos
     const query = `SELECT * FROM users WHERE mail = ? AND password = ?`;
     connection.query(query, [email, password], (err, user) => {
+      // Liberar la conexión para que pueda ser reutilizada por otros
+      connection.release();
+
       if (err) {
         console.error("Error al buscar el usuario:", err.message);
         return res.status(500).json({ error: "Error de servidor" });
@@ -32,19 +34,8 @@ const loginUser = (req, res) => {
         return res.status(401).json({ error: "Los datos son incorrectos" });
       }
 
-      // Generar el token JWT para el usuario autenticado
       const token = jwt.sign({ userId: user[0].id }, "secret_key", { expiresIn: "1h" });
-
       res.json({ token });
-
-      // Cerrar la conexión a la base de datos después de realizar la operación
-      connection.end((err) => {
-        if (err) {
-          console.error("Error al cerrar la conexión a la base de datos:", err.message);
-        } else {
-          console.log("Conexión a la base de datos cerrada");
-        }
-      });
     });
   });
 };

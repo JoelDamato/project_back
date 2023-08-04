@@ -17,10 +17,3 @@ app.use('/api', routes);
 app.listen(PORT, ()=> console.log("Express listening PORT:" + "http://localhost:" + PORT + "/api"))
 app.use(bodyParser.json());
 
-const db = new sqlite3.Database(DB_PATH, (err) => {
-  if (err) {
-    console.error('Error al conectar a la base de datos:', err.message);
-  } else {
-    console.log('Conexión exitosa a la base de datos SQLite.');
-  }
-});
